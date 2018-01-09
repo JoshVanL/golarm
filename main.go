@@ -29,7 +29,7 @@ func main() {
 }
 
 func init() {
-	RootCmd.PersistentFlags().StringP("file", "f", "~/sounds/alarm.mp3", "Set sound file path")
+	RootCmd.PersistentFlags().StringP(FlagSoundFile, "f", "~/sounds/alarm.mp3", "Set sound file path")
 }
 
 var RootCmd = &cobra.Command{
