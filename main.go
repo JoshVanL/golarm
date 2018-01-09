@@ -61,7 +61,7 @@ var RootCmd = &cobra.Command{
 			ErrorHandler(err)
 		}
 
-		fmt.Printf("Using sound file: %v\n", path)
+		fmt.Printf("Using sound file: %v\n", soundFile)
 
 		stopCh := SignalHandler(" Alarm cancelled.\n")
 
@@ -87,6 +87,12 @@ var RootCmd = &cobra.Command{
 			})))
 
 			<-done
+
+			sound, err = DecodeSoundFile(path)
+			if err != nil {
+				ErrorHandler(err)
+			}
+
 		}
 	},
 }
