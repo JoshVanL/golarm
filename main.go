@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"os/user"
 	"path/filepath"
+	"sync"
 	"syscall"
 	"time"
 
@@ -65,12 +66,35 @@ var RootCmd = &cobra.Command{
 
 		stopCh := SignalHandler(" Alarm cancelled.\n")
 
+		var wg sync.WaitGroup
+		wg.Add(1)
+
+		go func() {
+			bar := New(waitTime.Seconds())
+			ticker := time.NewTicker(time.Second)
+			for bar.current < waitTime.Seconds()-1 {
+				bar.Output()
+				select {
+				case <-ticker.C:
+					bar.Increment()
+				case <-stopCh:
+					wg.Done()
+					return
+				}
+			}
+			bar.OutputDone()
+			wg.Done()
+		}()
+
 		select {
 		case <-time.Tick(waitTime):
 			close(stopCh)
 		case <-stopCh:
+			wg.Wait()
 			os.Exit(0)
 		}
+
+		wg.Wait()
 
 		go func() {
 			<-SignalHandler(" Alarm stopped.\n")
